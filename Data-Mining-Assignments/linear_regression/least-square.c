@@ -21,7 +21,7 @@ typedef struct{
 
 
 void calculate_least_square(record_t records[MAX_ROWS], int );
-int calculate_index_value(int , int );
+int calculate_index_value(int , int);
 void predict_value_least_square();
 
 /*
@@ -49,13 +49,15 @@ int main(void){
 		count++; 
 	}
 
-   /*
+	/*
+   
    // Used for printing the values of csv file	
 
 	for(int i=0; i < count; i++){
 		printf("%d %d %.2f %d\n",records[i].date, records[i].month,
 			    records[i].close_value, records[i].index);
 	}
+   
    */
 
 	fclose(fp);
@@ -98,7 +100,9 @@ int calculate_index_value(int month, int date){
 // summ_xy --> summation of xy(Product of x and y)
 // summ_x --> summation of all the values of x
 void calculate_least_square(record_t records[MAX_ROWS], int count){
-	float summ_xy = 0,summ_x = 0,summ_y = 0;
+	float summ_x = 0.0,summ_y = 0.0;
+	float x_mean, y_mean;
+	float covariance , variance;
 
 	for(int i=0; i < count; i++){
 
@@ -106,11 +110,17 @@ void calculate_least_square(record_t records[MAX_ROWS], int count){
 		summ_y += records[i].close_value;
 	}
 
-	summ_xy = summ_x*summ_y;
+	x_mean = summ_x/count;
+	y_mean = summ_y/count;
 
-    slope_ls = ( (count * summ_xy) - (summ_x * summ_y) )/( count*pow(summ_x, 2) - pow(summ_x, 2) ); 
+	for(int i=0; i < count; i++){
 
-	constant_ls = (summ_y - (slope_ls*summ_x))/count;
+		covariance += (records[i].index - x_mean) * (records[i].close_value - y_mean);
+		variance += pow((records[i].index - x_mean),2);
+	}
+	
+	slope_ls = covariance / variance;
+	constant_ls = y_mean - (slope_ls*x_mean);
 
 	printf("slope is : %f \nconstant is : %f \n", slope_ls, constant_ls);
 
